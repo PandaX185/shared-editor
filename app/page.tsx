@@ -40,7 +40,7 @@ const HomePage = () => {
     <div className="home-page h-screen w-full flex space-x-2 items-center justify-center bg-gray-100">
       <div className="w-1/2 flex flex-col">
         <ReactTyped
-          className="py-5 font-bold text-6xl bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 text-transparent bg-clip-text"
+          className="py-5 font-bold ld:text-6xl text-4xl bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 text-transparent bg-clip-text"
           strings={[
             "Code Editor",
             "Code Together",
@@ -51,7 +51,7 @@ const HomePage = () => {
           backSpeed={60}
           loop
         />
-        <h1 className="text-xl mt-4">
+        <h1 className="lg:text-xl text-md mt-4">
           A collaborative code editor built with Next.js, Apollo Client and
           Hasura
         </h1>
