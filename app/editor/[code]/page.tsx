@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { gql, useSubscription, useMutation } from "@apollo/client";
-import Editor from "@monaco-editor/react";
+import Editor, { useMonaco } from "@monaco-editor/react";
 
 const GET_FILE_CONTENT = gql`
   subscription GetFileContent($code: uuid!) {
@@ -39,6 +39,8 @@ interface EditorPageProps {
 
 const EditorPage = ({ params }: EditorPageProps) => {
   const { code } = params;
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const monaco = useMonaco();
   const { data, loading } = useSubscription(GET_FILE_CONTENT, {
     variables: { code },
   });
@@ -54,6 +56,12 @@ const EditorPage = ({ params }: EditorPageProps) => {
       setLanguage(data.files[0].language || "javascript");
     }
   }, [data]);
+
+  useEffect(() => {
+    if (monaco) {
+      monaco.editor.setTheme(theme === "light" ? "vs" : "vs-dark");
+    }
+  }, [theme, monaco]);
 
   const handleEditorChange = (newValue: string | undefined) => {
     if (newValue !== undefined) {
@@ -73,30 +81,48 @@ const EditorPage = ({ params }: EditorPageProps) => {
     });
   };
 
+  const handleChangeTheme = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+  };
+
   return (
-    <div className="editor-page">
-      <h1>Collaborative Editor</h1>
-      <div>
+    <div className="w-full h-screen flex flex-col justify-center">
+      <h1 className="text-2xl font-semibold my-4 mx-4">Collaborative Editor</h1>
+      <div className="mb-4 ml-4 flex space-x-4 items-center">
         <label htmlFor="language-select">Language:</label>
         <select
           id="language-select"
           value={language}
           onChange={handleLanguageChange}
+          className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500 duration-200 ease-in-out"
         >
           <option value="javascript">JavaScript</option>
           <option value="typescript">TypeScript</option>
           <option value="python">Python</option>
-          <option value="java">Java</option>
-          <option value="csharp">C#</option>
-          <option value="ruby">Ruby</option>
-          <option value="go">Go</option>
-          <option value="rust">Rust</option>
-          <option value="php">PHP</option>
         </select>
+        <div>
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-12 rounded"
+            onClick={handleSave}
+          >
+            Save
+          </button>
+        </div>
+        <div>
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-12 rounded"
+            onClick={handleChangeTheme}
+          >
+            Change Theme
+          </button>
+        </div>
       </div>
       {!loading && (
         <Editor
-          height="90vh"
+          height="70vh"
           defaultLanguage={language}
           value={content}
           onChange={handleEditorChange}
@@ -107,7 +133,6 @@ const EditorPage = ({ params }: EditorPageProps) => {
           }}
         />
       )}
-      <button onClick={handleSave}>Save</button>
     </div>
   );
 };
